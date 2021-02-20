@@ -35,4 +35,47 @@ client.on("message", message => {
     }
 })
 
+client.on("messageReactionAdd", (reaction, user) => {
+    if (user.bot) {
+        return;
+    }
+    const { message } = reaction
+    
+    if (reaction.emoji.name === "🎟️") {
+        reaction.users.remove(user.id)
+        message.guild.channels.create(`${user.id}-ticket`, {
+            permissionOverwrites: [
+                {
+                    deny: "VIEW_CHANNEL",
+                    id: message.guild.id
+                },
+                {
+                    allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "ATTACH_FILES", "READ_MESSAGE_HISTORY", "ADD_REACTIONS"],
+                    id: user.id
+                }
+            ]
+        })
+        .then(ch => {
+            const e = new Discord.MessageEmbed()
+            .setTitle("Nouveau Ticket")
+            .setColor("#2F3136")
+            .setDescription(`User: ${user.tag}\nID: ${user.id}`)
+            .setFooter("Pour fermer le ticket merci de cliquer sur la reaction ci dessous.")
+
+            ch.send(e)
+            .then(msg => {
+                msg.react("🔒")
+            })
+        })
+    }
+    else if (reaction.emoji.name === "🔒") {
+        if (message.channel.name.endsWith("-ticket")) {
+            message.channel.delete()
+        }
+        else {
+            return;
+        }
+    }
+})
+
 client.login(token)
