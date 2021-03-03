@@ -1,4 +1,6 @@
 {
   "token": "LE TOKEN DE VOTRE BOT",
-  "prefix": "VOTRE PREFIX"
+  "prefix": "VOTRE PREFIX",
+  
+  "guildSupport": "ID de votre serveur"
 }
