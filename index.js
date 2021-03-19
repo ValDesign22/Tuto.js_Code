@@ -2,6 +2,8 @@ const { token, prefix, guildSupport } = require("./config.json");
 
 const Discord = require("discord.js");
 const fs = require("fs");
+const leveling = require("discord-leveling");
+const canvacord = require("canvacord");
 
 const client = new Discord.Client();
 
@@ -93,6 +95,33 @@ client.on("message", async message => {
             })
         }
         else {
+            var profil = await leveling.Fetch(message.author.id);
+            leveling.AddXp(message.author.id, 10);
+
+            if (profil.xp + 10 > 90) {
+                leveling.AddLevel(message.author.id, 1);
+                leveling.SetXp(message.author.id, 0);
+                
+                var output = await leveling.Fetch(message.author.id)
+
+                const rankCard = new canvacord.Rank()
+                .setAvatar(message.author.displayAvatarURL({format: "png"}))
+                .setCurrentXP(output.xp)
+                .setRequiredXP(100)
+                .setDiscriminator(message.author.discriminator)
+                .setUsername(message.author.username)
+                .setProgressBar("#96c42e", "COLOR")
+                .setLevel(output.level)
+                .setStatus(message.author.presence.status)
+
+                rankCard.build()
+                .then(data => {
+                    const attachment = new Discord.MessageAttachment(data, "levelUp.png");
+
+                    message.channel.send(attachment)
+                })
+            }
+
             if (!message.content.startsWith(prefix)) return;
 
             const args = message.content.slice(prefix.length).split(/ +/);
@@ -102,7 +131,7 @@ client.on("message", async message => {
              message.reply(`Je ne possède pas cette commande: ${command}`);
             }
             try {
-                lient.commands.get(command).execute(message, args, client);
+                client.commands.get(command).execute(message, args, client);
             }
             catch (error) {
                 console.log(error);
