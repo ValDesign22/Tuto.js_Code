@@ -128,7 +128,7 @@ client.on("message", async message => {
             const command = args.shift().toLowerCase();
 
             if (!client.commands.has(command)) {
-             message.reply(`Je ne possède pas cette commande: ${command}`);
+             return message.reply(`Je ne possède pas cette commande: ${command}`);
             }
             try {
                 client.commands.get(command).execute(message, args, client);
